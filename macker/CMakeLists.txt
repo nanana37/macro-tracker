@@ -1,5 +1,5 @@
 add_library(MyClangPlugin SHARED
-  # main.cpp
+  main.cpp
   MyPPCallbacks.cpp
   # MyASTConsumer.cpp
   # MyFrontendAction.cpp
