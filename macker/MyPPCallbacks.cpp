@@ -1,5 +1,7 @@
 #include "MyPPCallbacks.h"
 
+using namespace llvm;
+
 MyPPCallbacks::MyPPCallbacks(CompilerInstance &CI) : CI(CI) {}
 
 void MyPPCallbacks::MacroDefined(const Token &MacroNameTok,
@@ -12,21 +14,33 @@ void MyPPCallbacks::MacroDefined(const Token &MacroNameTok,
   if (!MI)
     return;
 
-  llvm::StringRef MacroName = II->getName();
+  StringRef MacroName = II->getName();
 
   std::string MacroValue;
   Preprocessor &PP = CI.getPreprocessor();
   for (const Token &Tok : MI->tokens()) {
-    llvm::StringRef TokSpelling = PP.getSpelling(Tok);
+    StringRef TokSpelling = PP.getSpelling(Tok);
     MacroValue += TokSpelling.str() + " ";
   }
 
-  llvm::errs() << "[MacroDefined] " << MacroName << " = " << MacroValue << "\n";
+  errs() << "[MacroDefined] " << MacroName << " = " << MacroValue << "\n";
 }
 
 void MyPPCallbacks::MacroExpands(const Token &MacroNameTok,
                                  const MacroDefinition &MD, SourceRange Range,
                                  const MacroArgs *Args) {
-  llvm::errs() << "[MacroExpands] "
-               << MacroNameTok.getIdentifierInfo()->getName() << "\n";
+  errs() << "[MacroExpands] " << MacroNameTok.getIdentifierInfo()->getName()
+         << "\n";
+
+  StringRef FileName = CI.getSourceManager().getFilename(Range.getBegin());
+  unsigned int LineNumber =
+      CI.getSourceManager().getSpellingLineNumber(Range.getBegin());
+
+  // Print filename
+  errs() << "  File: " << CI.getSourceManager().getFilename(Range.getBegin())
+         << "\n";
+  // Get line number
+  errs() << "  Line: "
+         << CI.getSourceManager().getSpellingLineNumber(Range.getBegin())
+         << "\n";
 }
